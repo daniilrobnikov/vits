@@ -125,7 +125,7 @@ ln -s /path/to/custom_dataset DUMMY3
 5. create filelists. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
 6. modify [config file](configs/) to use your own dataset
 
-```json
+```js
 {
   "data": {
     "training_files":"filelists/custom_dataset_audio_text_train_filelist.txt.cleaned", // path to training filelist
