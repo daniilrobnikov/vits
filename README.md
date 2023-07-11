@@ -24,6 +24,116 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
 </table>
 
 
+## Installation:
+<a name="installation"></a>
+
+#### 1. Clone the repo
+
+```shell
+git clone git@github.com:daniilrobnikov/vits-bengali.git
+cd vits-bengali
+```
+
+#### 2. Setting up the conda env
+
+This is assuming you have navigated to the `vits-bengali` root after cloning it. 
+
+**NOTE:** This is tested under `python3.6` and `python3.11`. For other python versions, you might encounter version conflicts.
+
+
+**PyTorch 1.13** 
+Please refer [requirements_py6.txt](requirements.txt)
+
+```shell
+# install required packages (for pytorch 1.13)
+conda create -n py11 python=3.6
+conda activate py6
+pip install -r requirements_py6.txt
+```
+
+**PyTorch 2.0** 
+Please refer [requirements_py11.txt](requirements.txt)
+
+```shell
+# install required packages (for pytorch 2.0)
+conda create -n py11 python=3.11
+conda activate py11
+pip install -r requirements_py11.txt
+```
+
+
+#### 2. Install espeak (optional)
+
+**NOTE:** This is required for the `preprocess.py` and `inference.ipynb` notebook to work. If you don't need it, you can skip this step.
+
+
+```shell
+# install espeak
+sudo apt-get install espeak
+```
+
+
+#### 3. Build Monotonic Alignment Search
+
+```shell
+# Cython-version Monotonoic Alignment Search
+cd monotonic_align
+mkdir monotonic_align
+python setup.py build_ext --inplace
+```
+
+
+#### 4. Download datasets
+
+**LJ Speech dataset**
+1. download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/)
+
+```shell
+wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
+tar -xvf LJSpeech-1.1.tar.bz2
+```
+
+2. rename or create a link to the dataset folder
+
+```shell
+ln -s /path/to/LJSpeech-1.1/wavs DUMMY1
+```
+
+
+**VCTK dataset**
+1. download and extract the [VCTK dataset](https://www.kaggle.com/datasets/showmik50/vctk-dataset)
+2. resample wav files to 22050 Hz. Please refer [preprocess/resample_audio.py](preprocess/resample_audio.py)
+2. rename or create a link to the dataset folder
+```shell
+ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2
+```
+
+
+**Custom dataset**
+1. create a folder with wav files
+2. resample wav files to 22050 Hz. Please refer [downsample.py](downsample.py)
+4. run preprocessing. Please refer [preprocess/phonemizer.py](preprocess/phonemizer.py)
+```
+3. rename or create a link to the dataset folder
+```shell
+ln -s /path/to/custom_dataset DUMMY3
+```
+
+
+## Training Examples
+```shell
+# LJ Speech
+python train.py -c configs/ljs_base.json -m ljs_base
+
+# VCTK
+python train_ms.py -c configs/vctk_base.json -m vctk_base
+```
+
+
+## Inference Example
+See [inference.ipynb](inference.ipynb)
+
+
 ## Pre-requisites
 0. Python >= 3.6
 0. Clone this repository
@@ -31,11 +141,12 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
     1. You may need to install espeak first: `apt-get install espeak`
 0. Download datasets
     1. Download and extract the LJ Speech dataset, then rename or create a link to the dataset folder: `ln -s /path/to/LJSpeech-1.1/wavs DUMMY1`
-    1. For mult-speaker setting, download and extract the VCTK dataset, and downsample wav files to 22050 Hz. Then rename or create a link to the dataset folder: `ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2`
+    1. For multi-speaker setting, download and extract the VCTK dataset, and downsample wav files to 22050 Hz. Then rename or create a link to the dataset folder: `ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2`
 0. Build Monotonic Alignment Search and run preprocessing if you use your own datasets.
 ```sh
 # Cython-version Monotonoic Alignment Search
 cd monotonic_align
+mkdir monotonic_align
 python setup.py build_ext --inplace
 
 # Preprocessing (g2p) for your own datasets. Preprocessed phonemes for LJ Speech and VCTK have been already provided.
@@ -44,7 +155,7 @@ python setup.py build_ext --inplace
 ```
 
 
-## Training Exmaple
+## Training Examples
 ```sh
 # LJ Speech
 python train.py -c configs/ljs_base.json -m ljs_base
