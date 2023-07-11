@@ -165,6 +165,7 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
   - [x] add support for Bengali text cleaner
   - [ ] update original text cleaner for multi-language
   - [ ] custom `text/cleaners.py` for multi-language
+  - [ ] use num2words package to convert numbers to words in multiple languages
 - [ ] audio preprocessing
   - [x] batch audio resampling. Please refer [preprocess/resample_audio.py](preprocess/resample_audio.py)
   - [x] unit testing for corrupt files with rate assertion. Please refer [preprocess/test_corrupt_files.py](preprocess/test_corrupt_files.py)
