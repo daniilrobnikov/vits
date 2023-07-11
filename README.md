@@ -155,7 +155,7 @@ See [inference.ipynb](inference.ipynb)
 
 ## Pretrained Models
 
-See [pretrained_models.md](pretrained_models.md)
+We also provide the [pretrained models](https://drive.google.com/drive/folders/1ksarh-cJf3F5eKJjLVWY0X1j1qsQqiS2?usp=sharing)
 
 ## Audio Samples
 
