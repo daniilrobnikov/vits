@@ -162,7 +162,7 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
 ## Todo
 
 - [ ] text preprocessing
-  - [x] add support for Bengali text cleaner
+  - [x] add support for Bengali text cleaner and phonemizer
   - [ ] update original text cleaner for multi-language
   - [ ] custom `text/cleaners.py` for multi-language
   - [ ] use num2words package to convert numbers to words in multiple languages
@@ -171,12 +171,23 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
   - [x] unit testing for corrupt files with rate assertion. Please refer [preprocess/test_corrupt_files.py](preprocess/test_corrupt_files.py)
   - [x] code snippets to find corruption files in dataset. Please refer [preprocess/find_corrupt_files.py](preprocess/find_corrupt_files.py)
   - [x] code snippets to delete from extension files in dataset. Please refer [preprocess/delete_from_extension.py](preprocess/delete_from_extension.py)
+  - [x] replace scipy and librosa dependencies with faster implementation of torchaudio in mel_processing
   - [ ] accepting different sample rates. Please refer [vits_chinese](https://github.com/PlayVoice/vits_chinese/blob/master/text/symbols.py)
   - [ ] remove necessity for multispeech speakers indexation
 - [ ] filelists preprocessing
   - [x] add filelists preprocessing for multi-speaker. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
   - [x] code snippets for train test split. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
   - [ ] notebook to link filelists with actual wavs. Please refer [preprocess/link_filelists_with_wavs.ipynb](preprocess/link_filelists_with_wavs.ipynb)
+- [ ] other
+
+  - [x] rewrite code for python 3.11
+  - [x] replace Cython Monotonic Alignment Search with numba. Please refer [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
+  - [ ] replace numba Monotonic Alignment Search with torch.cuda.jit. Please refer [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
+  - [ ] updated inference to support batch processing
+
+- [ ] pretrained models
+  - [ ] add pretrained models for Bengali language
+  - [ ] add pretrained models for multi-speaker
 - [ ] future work
   - [ ] pre-trained model for Bengali language
   - [ ] update model to naturalspeech. Please refer [naturalspeech](https://arxiv.org/abs/2205.04421)
