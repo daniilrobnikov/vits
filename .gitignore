@@ -11,3 +11,4 @@ build
 monotonic_align/monotonic_align
 
 .vscode
+test*.*

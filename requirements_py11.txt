@@ -5,14 +5,12 @@ torchaudio
 numpy
 matplotlib
 
-scipy
-librosa
-
 phonemizer
 Unidecode
 inflect
 num2words
-Cython
 
 tensorboard
 tqdm
+
+ipykernel
