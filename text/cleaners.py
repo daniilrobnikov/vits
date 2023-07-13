@@ -102,3 +102,11 @@ def english_cleaners2(text):
     phonemes = phonemize(text, language="en-us", backend="espeak", strip=True, preserve_punctuation=True, with_stress=True)
     phonemes = collapse_whitespace(phonemes)
     return phonemes
+
+
+def bengali_cleaners(text):
+    """Pipeline for Bengali text, including lowercase + punctuation + stress"""
+    # text = lowercase(text)
+    text = phonemize(text, backend="espeak", language="bn", strip=True, preserve_punctuation=True, with_stress=True, njobs=8)
+    # text = collapse_whitespace(text)
+    return text

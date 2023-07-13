@@ -167,7 +167,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                 losses = [loss_disc, loss_gen, loss_fm, loss_mel, loss_dur, loss_kl]
                 logger.info("Train Epoch: {} [{:.0f}%]".format(epoch, 100.0 * batch_idx / len(train_loader)))
                 logger.info([x.item() for x in losses] + [global_step, lr])
-                # loader.set_description(
+                # loader.set_postfix_str(
                 #     (
                 #         f"epoch: {epoch + 1} ({100.0 * batch_idx / len(train_loader)}); step: {global_step}; loss_gen_all: {loss_gen_all.item():.4f}; loss_disc_all: {loss_disc.item():.4f}; g: {loss_gen.item():.4f}; fm: {loss_fm.item():.4f}; mel: {loss_mel.item():.4f}; dur: {loss_dur.item():.4f}; kl: {loss_kl.item():.4f}; "
                 #         f"lr: {lr:.6f}"
@@ -186,7 +186,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                     "all/mel": utils.plot_spectrogram_to_numpy(mel[0].data.cpu().numpy()),
                     "all/attn": utils.plot_alignment_to_numpy(attn[0, 0].data.cpu().numpy()),
                 }
-                utils.summarize(writer=writer, global_step=global_step, images=image_dict, scalars=scalar_dict)
+                utils.summarize(writer=writer, global_step=global_step, images=image_dict, scalars=scalar_dict, audio_sampling_rate=hps.data.sampling_rate)
 
             if global_step % hps.train.eval_interval == 0:
                 evaluate(hps, net_g, eval_loader, writer_eval)

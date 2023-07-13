@@ -129,12 +129,6 @@ def plot_alignment_to_numpy(alignment, info=None):
     return data
 
 
-# TODO: delete this function
-# def load_wav_to_torch(full_path):
-#     sampling_rate, data = read(full_path)
-#     return torch.FloatTensor(data.astype(np.float32)), sampling_rate
-
-
 def load_wav_to_torch(full_path):
     """Load wav file into torch tensor
     Args:
