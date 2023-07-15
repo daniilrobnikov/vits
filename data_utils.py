@@ -21,12 +21,10 @@ class TextAudioLoader(torch.utils.data.Dataset):
     def __init__(self, audiopaths_and_text, hparams):
         self.audiopaths_and_text = load_filepaths_and_text(audiopaths_and_text)
         self.text_cleaners = hparams.text_cleaners
-        self.max_wav_value = hparams.max_wav_value
         self.sampling_rate = hparams.sampling_rate
         self.filter_length = hparams.filter_length
         self.hop_length = hparams.hop_length
         self.win_length = hparams.win_length
-        self.sampling_rate = hparams.sampling_rate
 
         self.cleaned_text = getattr(hparams, "cleaned_text", False)
 
@@ -64,18 +62,16 @@ class TextAudioLoader(torch.utils.data.Dataset):
 
     def get_audio(self, filename):
         audio, sampling_rate = load_wav_to_torch(filename)
-        if sampling_rate != self.sampling_rate:
-            raise ValueError("{} {} SR doesn't match target {} SR".format(sampling_rate, self.sampling_rate))
-        audio_norm = audio / self.max_wav_value
-        audio_norm = audio_norm.unsqueeze(0)
+        assert sampling_rate == self.sampling_rate, f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
+
         spec_filename = filename.replace(".wav", ".spec.pt")
         if os.path.exists(spec_filename):
             spec = torch.load(spec_filename)
         else:
-            spec = spectrogram_torch(audio_norm, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
+            spec = spectrogram_torch(audio, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
             spec = torch.squeeze(spec, 0)
             torch.save(spec, spec_filename)
-        return spec, audio_norm
+        return spec, audio
 
     def get_text(self, text):
         if self.cleaned_text:
@@ -156,12 +152,10 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
     def __init__(self, audiopaths_sid_text, hparams):
         self.audiopaths_sid_text = load_filepaths_and_text(audiopaths_sid_text)
         self.text_cleaners = hparams.text_cleaners
-        self.max_wav_value = hparams.max_wav_value
         self.sampling_rate = hparams.sampling_rate
         self.filter_length = hparams.filter_length
         self.hop_length = hparams.hop_length
         self.win_length = hparams.win_length
-        self.sampling_rate = hparams.sampling_rate
 
         self.cleaned_text = getattr(hparams, "cleaned_text", False)
 
@@ -200,18 +194,16 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
 
     def get_audio(self, filename):
         audio, sampling_rate = load_wav_to_torch(filename)
-        if sampling_rate != self.sampling_rate:
-            raise ValueError("{} {} SR doesn't match target {} SR".format(sampling_rate, self.sampling_rate))
-        audio_norm = audio / self.max_wav_value
-        audio_norm = audio_norm.unsqueeze(0)
+        assert sampling_rate == self.sampling_rate, f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
+
         spec_filename = filename.replace(".wav", ".spec.pt")
         if os.path.exists(spec_filename):
             spec = torch.load(spec_filename)
         else:
-            spec = spectrogram_torch(audio_norm, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
+            spec = spectrogram_torch(audio, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
             spec = torch.squeeze(spec, 0)
             torch.save(spec, spec_filename)
-        return spec, audio_norm
+        return spec, audio
 
     def get_text(self, text):
         if self.cleaned_text:
