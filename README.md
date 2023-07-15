@@ -27,49 +27,46 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
 
 <a name="installation"></a>
 
-### 1. Clone the repo
+### Clone the repo
 
 ```shell
 git clone git@github.com:daniilrobnikov/vits-bengali.git
 cd vits-bengali
 ```
 
-### 2. Setting up the conda env
+### Setting up the conda env
 
 This is assuming you have navigated to the `vits-bengali` root after cloning it.
 
-**NOTE:** This is tested under `python3.6` and `python3.11`. For other python versions, you might encounter version conflicts.
-
-**PyTorch 1.13**
-Please refer [requirements_py6.txt](requirements.txt)
-
-```shell
-# install required packages (for pytorch 1.13)
-conda create -n py6 python=3.6
-conda activate py6
-pip install -r requirements_py6.txt
-```
+**NOTE:** This is tested under `python3.11` with conda env. For other python versions, you might encounter version conflicts.
 
 **PyTorch 2.0**
-Please refer [requirements_py11.txt](requirements.txt)
+Please refer [requirements.txt](requirements.txt)
 
 ```shell
 # install required packages (for pytorch 2.0)
 conda create -n py11 python=3.11
 conda activate py11
-pip install -r requirements_py11.txt
+pip install -r requirements.txt
 ```
 
-### 2. Install espeak (optional)
+### Install espeak (optional)
 
 **NOTE:** This is required for the [preprocess.py](preprocess.py) and [inference.ipynb](inference.ipynb) notebook to work. If you don't need it, you can skip this step.
+
+You may also need to set environment variables for espeak. Please refer to [conda docs](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#setting-environment-variables) and [github issue](https://github.com/bootphon/phonemizer/issues/117).
 
 ```shell
 # install espeak
 sudo apt-get install espeak
+
+# set environment variables for conda env
+conda env config vars set PHONEMIZER_ESPEAK_LIBRARY="/opt/homebrew/Cellar/espeak/1.48.04_1/lib/libespeak.dylib"
 ```
 
-### 3. Build Monotonic Alignment Search
+### Build Monotonic Alignment Search (optional)
+
+**NOTE:** This step was required for the [original repo](https://github.com/jaywalnut310/vits/tree/main/monotonic_align). However, we have replaced Cython MAS with numba alternative. Please refer to [vits-finetuning](https://github.com/SayaSS/vits-finetuning/tree/main/monotonic_align)
 
 ```shell
 # Cython-version Monotonoic Alignment Search
@@ -78,7 +75,7 @@ mkdir monotonic_align
 python setup.py build_ext --inplace
 ```
 
-### 4. Download datasets
+### Download datasets
 
 There are three options you can choose from: LJ Speech, VCTK, and custom dataset.
 
@@ -104,7 +101,7 @@ ln -s /path/to/LJSpeech-1.1/wavs DUMMY1
 #### VCTK dataset
 
 1. download and extract the [VCTK dataset](https://www.kaggle.com/datasets/showmik50/vctk-dataset)
-2. resample wav files to 22050 Hz. Please refer [preprocess/resample_audio.py](preprocess/resample_audio.py)
+2. (optional): downsample the audio files to 22050 Hz. See [audio_resample.ipynb](preprocess/audio_resample.ipynb)
 3. rename or create a link to the dataset folder
 
 ```shell
@@ -114,29 +111,30 @@ ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2
 #### Custom dataset
 
 1. create a folder with wav files
-2. resample wav files to 22050 Hz. Please refer [downsample.py](downsample.py)
-3. rename or create a link to the dataset folder
-
-```shell
-ln -s /path/to/custom_dataset DUMMY3
-```
-
-4. run preprocessing. Please refer [preprocess/phonemizer.py](preprocess/phonemizer.py)
-5. create filelists. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
-6. modify [config file](configs/) to use your own dataset
+2. create configuration file in [configs](configs/). Change the following fields in `custom_base.json`:
 
 ```js
 {
   "data": {
-    "training_files":"filelists/custom_dataset_audio_text_train_filelist.txt.cleaned", // path to training filelist
-    "validation_files":"filelists/custom_dataset_audio_text_train_filelist.txt.cleaned", // path to validation filelist
-    "text_cleaners":["english_cleaners2"], // text cleaner
-    ...
+    "training_files": "filelists/custom_audio_text_train_filelist.txt.cleaned", // path to training cleaned filelist
+    "validation_files": "filelists/custom_audio_text_val_filelist.txt.cleaned", // path to validation cleaned filelist
+    "text_cleaners": ["english_cleaners2"], // text cleaner
+    "bits_per_sample": 16, // bit depth of wav files
     "sampling_rate": 22050, // sampling rate if you resampled your wav files
     ...
     "n_speakers": 0, // number of speakers in your dataset if you use multi-speaker setting
-  }
+    "cleaned_text": true // if you already cleaned your text (See text_phonemizer.ipynb), set this to true
+  },
+  ...
 }
+```
+
+3. run text-preprocessing. Please refer [text_phonemizer.ipynb](preprocess/text_phonemizer.ipynb)
+4. create filelists and cleaned version with train test split. See [text_split.ipynb](preprocess/text_split.ipynb)
+5. rename or create a link to the dataset folder. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
+
+```shell
+ln -s /path/to/custom_dataset DUMMY3
 ```
 
 ## Training Examples
@@ -147,6 +145,9 @@ python train.py -c configs/ljs_base.json -m ljs_base
 
 # VCTK
 python train_ms.py -c configs/vctk_base.json -m vctk_base
+
+# Custom dataset (multi-speaker)
+python train_ms.py -c configs/custom_base.json -m custom_base
 ```
 
 ## Inference Example
@@ -165,26 +166,28 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
   - [x] add support for Bengali text cleaner and phonemizer
   - [ ] update original text cleaner for multi-language
   - [ ] custom `text/cleaners.py` for multi-language
-  - [ ] use num2words package to convert numbers to words in multiple languages
-- [ ] audio preprocessing
-  - [x] batch audio resampling. Please refer [preprocess/resample_audio.py](preprocess/resample_audio.py)
-  - [x] unit testing for corrupt files with rate assertion. Please refer [preprocess/test_corrupt_files.py](preprocess/test_corrupt_files.py)
-  - [x] code snippets to find corruption files in dataset. Please refer [preprocess/find_corrupt_files.py](preprocess/find_corrupt_files.py)
-  - [x] code snippets to delete from extension files in dataset. Please refer [preprocess/delete_from_extension.py](preprocess/delete_from_extension.py)
-  - [x] replace scipy and librosa dependencies with faster implementation of torchaudio in mel_processing
-  - [ ] accepting different sample rates. Please refer [vits_chinese](https://github.com/PlayVoice/vits_chinese/blob/master/text/symbols.py)
   - [ ] remove necessity for multispeech speakers indexation
+  - [ ] use num2words package to convert numbers to words in multiple languages
+  - [ ] get list of phonemes from wiki source. For example, [Bengali phonology](https://en.wikipedia.org/wiki/Help:IPA/Bengali#Bibliography) and [Bengali alphabet](https://en.wiktionary.org/wiki/Appendix:Unicode/Bengali)
+- [ ] audio preprocessing
+  - [x] batch audio resampling. Please refer [audio_resample.ipynb](preprocess/audio_resample.ipynb)
+  - [x] code snippets to find corrupted files in dataset. Please refer [audio_find_corrupted.ipynb](preprocess/audio_find_corrupted.ipynb)
+  - [x] code snippets to delete by extension files in dataset. Please refer [delete_by_ext.ipynb](preprocess/delete_by_ext.ipynb)
+  - [x] replace scipy and librosa dependencies with torchaudio. See [load](https://pytorch.org/audio/stable/backend.html#id2) and [MelScale](https://pytorch.org/audio/main/generated/torchaudio.transforms.MelScale.html) docs
+  - [x] automatic audio range normalization. Please refer [Loading audio data - Torchaudio docs](https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data)
+  - [x] support for stereo audio (multi-channel). Please refer [Loading audio data - Torchaudio docs](https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data)
+  - [x] support for various audio bit depths (bits per sample). See [load - Torchaudio docs](https://pytorch.org/audio/stable/backend.html#id2)
+  - [x] support for various sample rates. Please refer [load - Torchaudio docs](https://pytorch.org/audio/stable/backend.html#id2)
+  - [ ] test stereo audio (multi-channel) training
 - [ ] filelists preprocessing
-  - [x] add filelists preprocessing for multi-speaker. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
-  - [x] code snippets for train test split. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
-  - [ ] notebook to link filelists with actual wavs. Please refer [preprocess/link_filelists_with_wavs.ipynb](preprocess/link_filelists_with_wavs.ipynb)
+  - [x] add filelists preprocessing for multi-speaker. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
+  - [x] code snippets for train test split. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
+  - [ ] notebook to link filelists with actual wavs. Please refer [link_filelists_with_wavs.ipynb](preprocess/link_filelists_with_wavs.ipynb)
 - [ ] other
-
   - [x] rewrite code for python 3.11
-  - [x] replace Cython Monotonic Alignment Search with numba. Please refer [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
-  - [ ] replace numba Monotonic Alignment Search with torch.cuda.jit. Please refer [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
+  - [x] replace Cython Monotonic Alignment Search with numba.jit. See [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
+  - [ ] test batch Monotonic Alignment Search with torch.jit.script
   - [ ] updated inference to support batch processing
-
 - [ ] pretrained models
   - [ ] add pretrained models for Bengali language
   - [ ] add pretrained models for multi-speaker
