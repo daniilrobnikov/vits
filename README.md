@@ -153,6 +153,7 @@ python train_ms.py -c configs/custom_base.json -m custom_base
 ## Inference Example
 
 See [inference.ipynb](inference.ipynb)
+See [inference_batch.ipynb](inference_batch.ipynb) for multiple sentences inference
 
 ## Pretrained Models
 
@@ -166,7 +167,7 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
   - [x] add support for Bengali text cleaner and phonemizer
   - [ ] update original text cleaner for multi-language
   - [ ] custom `text/cleaners.py` for multi-language
-  - [ ] remove necessity for multispeech speakers indexation
+  - [ ] remove necessity for speakers indexation. See [vits/issues/58](https://github.com/jaywalnut310/vits/issues/58)
   - [ ] use num2words package to convert numbers to words in multiple languages
   - [ ] get list of phonemes from wiki source. For example, [Bengali phonology](https://en.wikipedia.org/wiki/Help:IPA/Bengali#Bibliography) and [Bengali alphabet](https://en.wiktionary.org/wiki/Appendix:Unicode/Bengali)
 - [ ] audio preprocessing
@@ -179,20 +180,19 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
   - [x] support for various audio bit depths (bits per sample). See [load - Torchaudio docs](https://pytorch.org/audio/stable/backend.html#id2)
   - [x] support for various sample rates. Please refer [load - Torchaudio docs](https://pytorch.org/audio/stable/backend.html#id2)
   - [ ] test stereo audio (multi-channel) training
-- [ ] filelists preprocessing
+- [x] filelists preprocessing
   - [x] add filelists preprocessing for multi-speaker. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
   - [x] code snippets for train test split. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
-  - [ ] notebook to link filelists with actual wavs. Please refer [link_filelists_with_wavs.ipynb](preprocess/link_filelists_with_wavs.ipynb)
+  - [x] notebook to link filelists with actual wavs. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
 - [ ] other
   - [x] rewrite code for python 3.11
   - [x] replace Cython Monotonic Alignment Search with numba.jit. See [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
+  - [x] updated inference to support batch processing
   - [ ] test batch Monotonic Alignment Search with torch.jit.script
-  - [ ] updated inference to support batch processing
 - [ ] pretrained models
-  - [ ] add pretrained models for Bengali language
-  - [ ] add pretrained models for multi-speaker
+  - [x] add pretrained models for Bengali language
+  - [ ] add pretrained models for multiple languages
 - [ ] future work
-  - [ ] pre-trained model for Bengali language
   - [ ] update model to naturalspeech. Please refer [naturalspeech](https://arxiv.org/abs/2205.04421)
   - [ ] update naturalspeech to multi-speaker
   - [ ] add support for streaming. Please refer [vits_chinese](https://github.com/PlayVoice/vits_chinese/blob/master/text/symbols.py)
