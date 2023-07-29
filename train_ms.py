@@ -65,10 +65,10 @@ def run(rank, n_gpus, hps):
     train_dataset = TextAudioSpeakerLoader(hps.data.training_files, hps.data)
     train_sampler = DistributedBucketSampler(train_dataset, hps.train.batch_size, [32, 300, 400, 500, 600, 700, 800, 900, 1000], num_replicas=n_gpus, rank=rank, shuffle=True)
     collate_fn = TextAudioSpeakerCollate()
-    train_loader = DataLoader(train_dataset, num_workers=8, shuffle=False, pin_memory=True, collate_fn=collate_fn, batch_sampler=train_sampler)
+    train_loader = DataLoader(train_dataset, num_workers=16, shuffle=False, pin_memory=True, collate_fn=collate_fn, batch_sampler=train_sampler)
     if rank == 0:
         eval_dataset = TextAudioSpeakerLoader(hps.data.validation_files, hps.data)
-        eval_loader = DataLoader(eval_dataset, num_workers=8, shuffle=False, batch_size=hps.train.batch_size, pin_memory=True, drop_last=False, collate_fn=collate_fn)
+        eval_loader = DataLoader(eval_dataset, num_workers=16, shuffle=False, batch_size=hps.train.batch_size, pin_memory=True, drop_last=False, collate_fn=collate_fn)
 
     net_g = SynthesizerTrn(len(symbols), hps.data.filter_length // 2 + 1, hps.train.segment_size // hps.data.hop_length, n_speakers=hps.data.n_speakers, **hps.model).cuda(rank)
     net_d = MultiPeriodDiscriminator(hps.model.use_spectral_norm).cuda(rank)
@@ -181,7 +181,7 @@ def train_and_evaluate(rank, epoch, hps, nets, optims, schedulers, scaler, loade
                     "all/mel": utils.plot_spectrogram_to_numpy(mel[0].data.cpu().numpy()),
                     "all/attn": utils.plot_alignment_to_numpy(attn[0, 0].data.cpu().numpy()),
                 }
-                utils.summarize(writer=writer, global_step=global_step, images=image_dict, scalars=scalar_dict, audio_sampling_rate=hps.data.sampling_rate)
+                utils.summarize(writer=writer, global_step=global_step, images=image_dict, scalars=scalar_dict, sampling_rate=hps.data.sampling_rate)
 
             if global_step % hps.train.eval_interval == 0:
                 evaluate(hps, net_g, eval_loader, writer_eval)
@@ -224,7 +224,7 @@ def evaluate(hps, generator, eval_loader, writer_eval):
         image_dict.update({"gt/mel": utils.plot_spectrogram_to_numpy(mel[0].cpu().numpy())})
         audio_dict.update({"gt/audio": y[0, :, : y_lengths[0]]})
 
-    utils.summarize(writer=writer_eval, global_step=global_step, images=image_dict, audios=audio_dict, audio_sampling_rate=hps.data.sampling_rate)
+    utils.summarize(writer=writer_eval, global_step=global_step, images=image_dict, audios=audio_dict, sampling_rate=hps.data.sampling_rate)
     generator.train()
 
 

@@ -1,6 +1,7 @@
 DUMMY1
 DUMMY2
 DUMMY3
+
 logs
 __pycache__
 .ipynb_checkpoints
@@ -11,5 +12,8 @@ build
 monotonic_align/monotonic_align
 
 .vscode
-test*.*
 .DS_Store
+
+test
+test*.*
+filelists/madasr23*

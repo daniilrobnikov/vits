@@ -55,7 +55,7 @@ def save_checkpoint(model, optimizer, learning_rate, iteration, checkpoint_path)
     torch.save({"model": state_dict, "iteration": iteration, "optimizer": optimizer.state_dict(), "learning_rate": learning_rate}, checkpoint_path)
 
 
-def summarize(writer, global_step, scalars={}, histograms={}, images={}, audios={}, audio_sampling_rate=22050):
+def summarize(writer, global_step, scalars={}, histograms={}, images={}, audios={}, sampling_rate=22050):
     for k, v in scalars.items():
         writer.add_scalar(k, v, global_step)
     for k, v in histograms.items():
@@ -63,7 +63,7 @@ def summarize(writer, global_step, scalars={}, histograms={}, images={}, audios=
     for k, v in images.items():
         writer.add_image(k, v, global_step, dataformats="HWC")
     for k, v in audios.items():
-        writer.add_audio(k, v, global_step, audio_sampling_rate)
+        writer.add_audio(k, v, global_step, sampling_rate)
 
 
 def latest_checkpoint_path(dir_path, regex="G_*.pth"):
@@ -130,16 +130,16 @@ def plot_alignment_to_numpy(alignment, info=None):
 
 
 def load_wav_to_torch(full_path):
-    """Load wav file into torch tensor
+    """Load wav file
     Args:
         full_path (str): Full path of the wav file
 
     Returns:
-        waveform (torch.FloatTensor): Tensor of audio signal (T,)
+        waveform (torch.FloatTensor): Stereo audio signal [channel, time] in range [-1, 1]
         sampling_rate (int): Sampling rate of audio signal (Hz)
     """
     waveform, sampling_rate = torchaudio.load(full_path)
-    return waveform.mean(0), sampling_rate
+    return waveform, sampling_rate
 
 
 def load_filepaths_and_text(filename, split="|"):

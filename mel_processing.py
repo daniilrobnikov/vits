@@ -3,8 +3,6 @@ import torch.nn.functional as F
 import torchaudio.transforms as T
 import torch.utils.data
 
-MAX_WAV_VALUE = 32768.0
-
 mel_basis = {}
 hann_window = {}
 
