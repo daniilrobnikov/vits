@@ -64,13 +64,17 @@ class TextAudioLoader(torch.utils.data.Dataset):
         audio, sampling_rate = load_wav_to_torch(filename)
         assert sampling_rate == self.sampling_rate, f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
 
+        assert sampling_rate == self.sampling_rate, f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
+
         spec_filename = filename.replace(".wav", ".spec.pt")
         if os.path.exists(spec_filename):
             spec = torch.load(spec_filename)
         else:
             spec = spectrogram_torch(audio, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
+            spec = spectrogram_torch(audio, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
             spec = torch.squeeze(spec, 0)
             torch.save(spec, spec_filename)
+        return spec, audio
         return spec, audio
 
     def get_text(self, text):
@@ -196,10 +200,13 @@ class TextAudioSpeakerLoader(torch.utils.data.Dataset):
         audio, sampling_rate = load_wav_to_torch(filename)
         assert sampling_rate == self.sampling_rate, f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
 
+        assert sampling_rate == self.sampling_rate, f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
+
         spec_filename = filename.replace(".wav", ".spec.pt")
         if os.path.exists(spec_filename):
             spec = torch.load(spec_filename)
         else:
+            spec = spectrogram_torch(audio, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
             spec = spectrogram_torch(audio, self.filter_length, self.sampling_rate, self.hop_length, self.win_length, center=False)
             spec = torch.squeeze(spec, 0)
             splits = ["split1", "split2", "split3", "split4"]

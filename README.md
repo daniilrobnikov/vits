@@ -39,8 +39,10 @@ cd vits
 This is assuming you have navigated to the `vits` root after cloning it.
 
 **NOTE:** This is tested under `python3.11` with conda env. For other python versions, you might encounter version conflicts.
+**NOTE:** This is tested under `python3.11` with conda env. For other python versions, you might encounter version conflicts.
 
 **PyTorch 2.0**
+Please refer [requirements.txt](requirements.txt)
 Please refer [requirements.txt](requirements.txt)
 
 ```shell
@@ -93,6 +95,7 @@ ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2
 
 1. create a folder with wav files
 2. create configuration file in [configs](configs/). Change the following fields in `custom_base.json`:
+3. create configuration file in [configs](configs/). Change the following fields in `custom_base.json`:
 
 ```js
 {
@@ -101,9 +104,16 @@ ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2
     "validation_files": "filelists/custom_audio_text_val_filelist.txt.cleaned", // path to validation cleaned filelist
     "text_cleaners": ["english_cleaners2"], // text cleaner
     "bits_per_sample": 16, // bit depth of wav files
+    "training_files": "filelists/custom_audio_text_train_filelist.txt.cleaned", // path to training cleaned filelist
+    "validation_files": "filelists/custom_audio_text_val_filelist.txt.cleaned", // path to validation cleaned filelist
+    "text_cleaners": ["english_cleaners2"], // text cleaner
+    "bits_per_sample": 16, // bit depth of wav files
     "sampling_rate": 22050, // sampling rate if you resampled your wav files
     ...
     "n_speakers": 0, // number of speakers in your dataset if you use multi-speaker setting
+    "cleaned_text": true // if you already cleaned your text (See text_phonemizer.ipynb), set this to true
+  },
+  ...
     "cleaned_text": true // if you already cleaned your text (See text_phonemizer.ipynb), set this to true
   },
   ...
@@ -138,11 +148,15 @@ python train_ms.py -c configs/vctk_base.json -m vctk_base
 
 # Custom dataset (multi-speaker)
 python train_ms.py -c configs/custom_base.json -m custom_base
+
+# Custom dataset (multi-speaker)
+python train_ms.py -c configs/custom_base.json -m custom_base
 ```
 
 ## Inference Example
 
 See [inference.ipynb](inference.ipynb)
+See [inference_batch.ipynb](inference_batch.ipynb) for multiple sentences inference
 
 ## Pretrained Models
 
