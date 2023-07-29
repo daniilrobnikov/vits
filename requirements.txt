@@ -1,10 +1,37 @@
-Cython==0.29.21
-librosa==0.8.0
-matplotlib==3.3.1
-numpy==1.18.5
-phonemizer==2.2.1
-scipy==1.5.2
-tensorboard==2.3.0
-torch==1.6.0
-torchvision==0.7.0
-Unidecode==1.1.1
+torch
+torchvision
+torchaudio
+
+pyworld
+g2p_en # TODO g2p_en (ARPA) -> phonemizer (IPA)
+phonemizer
+matplotlib
+librosa # TODO Replace with torchaudio
+tqdm
+pandas
+numba
+numpy
+tensorboard
+tensorboardX
+h5py # ? None, Save data, delete
+requests # ? None, HTTP, delete
+scipy # TODO Replace with torchaudio
+sympy # ? None, Mathematical expressions, delete
+PyYAML
+praat-parselmouth # ? None, delete
+pillow
+ipykernel
+pyloudnorm
+pytorch_lightning
+setuptools
+miditoolkit # ? None, delete
+resemblyzer # TODO None, worth a try
+webrtcvad # ? None, Voice Activity Detector, delete
+learn2learn # ? None, delete
+scikit-learn
+scikit-image
+pypinyin # ? None, Chinese pinyin, delete
+textgrid
+pydub # ? None, Manipulate audio, delete
+horology # TODO None, measure time, worth a try
+cython
