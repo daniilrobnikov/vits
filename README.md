@@ -18,8 +18,8 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
     <th>VITS at inference</th>
   </tr>
   <tr>
-    <td><img src="resources/fig_1a.png" alt="VITS at training" width="100%"></td>
-    <td><img src="resources/fig_1b.png" alt="VITS at inference" width="100%"></td>
+    <td><img src="pics/fig_1a.png" alt="VITS at training" width="100%"></td>
+    <td><img src="pics/fig_1b.png" alt="VITS at inference" width="100%"></td>
   </tr>
 </table>
 
@@ -27,58 +27,30 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
 
 <a name="installation"></a>
 
-### 1. Clone the repo
+**Clone the repo**
 
 ```shell
-git clone git@github.com:daniilrobnikov/vits-bengali.git
-cd vits-bengali
+git clone git@github.com:daniilrobnikov/vits.git
+cd vits
 ```
 
-### 2. Setting up the conda env
+## Setting up the conda env
 
-This is assuming you have navigated to the `vits-bengali` root after cloning it.
+This is assuming you have navigated to the `vits` root after cloning it.
 
-**NOTE:** This is tested under `python3.6` and `python3.11`. For other python versions, you might encounter version conflicts.
-
-**PyTorch 1.13**
-Please refer [requirements_py6.txt](requirements.txt)
-
-```shell
-# install required packages (for pytorch 1.13)
-conda create -n py6 python=3.6
-conda activate py6
-pip install -r requirements_py6.txt
-```
+**NOTE:** This is tested under `python3.11` with conda env. For other python versions, you might encounter version conflicts.
 
 **PyTorch 2.0**
-Please refer [requirements_py11.txt](requirements.txt)
+Please refer [requirements.txt](requirements.txt)
 
 ```shell
 # install required packages (for pytorch 2.0)
-conda create -n py11 python=3.11
-conda activate py11
-pip install -r requirements_py11.txt
+conda create -n vits python=3.11
+conda activate vits
+pip install -r requirements.txt
 ```
 
-### 2. Install espeak (optional)
-
-**NOTE:** This is required for the [preprocess.py](preprocess.py) and [inference.ipynb](inference.ipynb) notebook to work. If you don't need it, you can skip this step.
-
-```shell
-# install espeak
-sudo apt-get install espeak
-```
-
-### 3. Build Monotonic Alignment Search
-
-```shell
-# Cython-version Monotonoic Alignment Search
-cd monotonic_align
-mkdir monotonic_align
-python setup.py build_ext --inplace
-```
-
-### 4. Download datasets
+## Download datasets
 
 There are three options you can choose from: LJ Speech, VCTK, and custom dataset.
 
@@ -86,7 +58,7 @@ There are three options you can choose from: LJ Speech, VCTK, and custom dataset
 2. VCTK: [VCTK dataset](#vctk-dataset). Used for multi-speaker TTS.
 3. Custom dataset: You can use your own dataset. Please refer [here](#custom-dataset).
 
-#### LJ Speech dataset
+### LJ Speech dataset
 
 1. download and extract the [LJ Speech dataset](https://keithito.com/LJ-Speech-Dataset/)
 
@@ -101,42 +73,58 @@ tar -xvf LJSpeech-1.1.tar.bz2
 ln -s /path/to/LJSpeech-1.1/wavs DUMMY1
 ```
 
-#### VCTK dataset
+### VCTK dataset
 
 1. download and extract the [VCTK dataset](https://www.kaggle.com/datasets/showmik50/vctk-dataset)
-2. resample wav files to 22050 Hz. Please refer [preprocess/resample_audio.py](preprocess/resample_audio.py)
+
+```shell
+wget https://datashare.is.ed.ac.uk/bitstream/handle/10283/3443/VCTK-Corpus-0.92.zip
+unzip VCTK-Corpus-0.92.zip
+```
+
+2. (optional): downsample the audio files to 22050 Hz. See [audio_resample.ipynb](preprocess/audio_resample.ipynb)
 3. rename or create a link to the dataset folder
 
 ```shell
 ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2
 ```
 
-#### Custom dataset
+### Custom dataset
 
 1. create a folder with wav files
-2. resample wav files to 22050 Hz. Please refer [downsample.py](downsample.py)
-3. rename or create a link to the dataset folder
-
-```shell
-ln -s /path/to/custom_dataset DUMMY3
-```
-
-4. run preprocessing. Please refer [preprocess/phonemizer.py](preprocess/phonemizer.py)
-5. create filelists. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
-6. modify [config file](configs/) to use your own dataset
+2. create configuration file in [configs](configs/). Change the following fields in `custom_base.json`:
 
 ```js
 {
   "data": {
-    "training_files":"filelists/custom_dataset_audio_text_train_filelist.txt.cleaned", // path to training filelist
-    "validation_files":"filelists/custom_dataset_audio_text_train_filelist.txt.cleaned", // path to validation filelist
-    "text_cleaners":["english_cleaners2"], // text cleaner
-    ...
+    "training_files": "filelists/custom_audio_text_train_filelist.txt.cleaned", // path to training cleaned filelist
+    "validation_files": "filelists/custom_audio_text_val_filelist.txt.cleaned", // path to validation cleaned filelist
+    "text_cleaners": ["english_cleaners2"], // text cleaner
+    "bits_per_sample": 16, // bit depth of wav files
     "sampling_rate": 22050, // sampling rate if you resampled your wav files
     ...
     "n_speakers": 0, // number of speakers in your dataset if you use multi-speaker setting
-  }
+    "cleaned_text": true // if you already cleaned your text (See text_phonemizer.ipynb), set this to true
+  },
+  ...
 }
+```
+
+3. install espeak-ng (optional)
+
+**NOTE:** This is required for the [preprocess.py](preprocess.py) and [inference.ipynb](inference.ipynb) notebook to work. If you don't need it, you can skip this step. Please refer [espeak-ng](https://github.com/espeak-ng/espeak-ng)
+
+4. preprocess text
+
+You can do this step by step way:
+
+- create a dataset of text files. See [text_dataset.ipynb](preprocess/text_dataset.ipynb)
+- phonemize or just clean up the text. Please refer [text_phonemizer.ipynb](preprocess/text_phonemizer.ipynb)
+- create filelists and cleaned version with train test split. See [text_split.ipynb](preprocess/text_split.ipynb)
+- rename or create a link to the dataset folder. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
+
+```shell
+ln -s /path/to/custom_dataset DUMMY3
 ```
 
 ## Training Examples
@@ -147,6 +135,9 @@ python train.py -c configs/ljs_base.json -m ljs_base
 
 # VCTK
 python train_ms.py -c configs/vctk_base.json -m vctk_base
+
+# Custom dataset (multi-speaker)
+python train_ms.py -c configs/custom_base.json -m custom_base
 ```
 
 ## Inference Example
@@ -162,37 +153,39 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
 ## Todo
 
 - [ ] text preprocessing
-  - [x] add support for Bengali text cleaner and phonemizer
-  - [ ] update original text cleaner for multi-language
-  - [ ] custom `text/cleaners.py` for multi-language
-  - [ ] use num2words package to convert numbers to words in multiple languages
+  - [x] update cleaners for multi-language support with 100+ languages
+  - [x] update vocabulary to support all symbols and features from IPA. See [phonemes.md](https://github.com/espeak-ng/espeak-ng/blob/ed9a7bcf5778a188cdec202ac4316461badb28e1/docs/phonemes.md#L5)
+  - [x] handling unknown, out of vocabulary symbols. Please refer [vocab.py](text/vocab.py) and [vocab - TorchText](https://pytorch.org/text/stable/vocab.html)
+  - [x] remove cleaners from text preprocessing. Most cleaners are already implemented in [phonemizer](https://github.com/bootphon/phonemizer). See [cleaners.py](text/cleaners.py)
+  - [ ] remove necessity for speakers indexation. See [vits/issues/58](https://github.com/jaywalnut310/vits/issues/58)
 - [ ] audio preprocessing
-  - [x] batch audio resampling. Please refer [preprocess/resample_audio.py](preprocess/resample_audio.py)
-  - [x] unit testing for corrupt files with rate assertion. Please refer [preprocess/test_corrupt_files.py](preprocess/test_corrupt_files.py)
-  - [x] code snippets to find corruption files in dataset. Please refer [preprocess/find_corrupt_files.py](preprocess/find_corrupt_files.py)
-  - [x] code snippets to delete from extension files in dataset. Please refer [preprocess/delete_from_extension.py](preprocess/delete_from_extension.py)
-  - [x] replace scipy and librosa dependencies with faster implementation of torchaudio in mel_processing
-  - [ ] accepting different sample rates. Please refer [vits_chinese](https://github.com/PlayVoice/vits_chinese/blob/master/text/symbols.py)
-  - [ ] remove necessity for multispeech speakers indexation
-- [ ] filelists preprocessing
-  - [x] add filelists preprocessing for multi-speaker. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
-  - [x] code snippets for train test split. Please refer [preprocess/split_train_test.py](preprocess/split_train_test.py)
-  - [ ] notebook to link filelists with actual wavs. Please refer [preprocess/link_filelists_with_wavs.ipynb](preprocess/link_filelists_with_wavs.ipynb)
+  - [x] batch audio resampling. Please refer [audio_resample.ipynb](preprocess/audio_resample.ipynb)
+  - [x] code snippets to find corrupted files in dataset. Please refer [audio_find_corrupted.ipynb](preprocess/audio_find_corrupted.ipynb)
+  - [x] code snippets to delete by extension files in dataset. Please refer [delete_by_ext.ipynb](preprocess/delete_by_ext.ipynb)
+  - [x] replace scipy and librosa dependencies with torchaudio. See [load](https://pytorch.org/audio/stable/backend.html#id2) and [MelScale](https://pytorch.org/audio/main/generated/torchaudio.transforms.MelScale.html) docs
+  - [x] automatic audio range normalization. Please refer [Loading audio data - Torchaudio docs](https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data)
+  - [x] add support for stereo audio (multi-channel). See [Loading audio data - Torchaudio docs](https://pytorch.org/audio/stable/tutorials/audio_io_tutorial.html#loading-audio-data)
+  - [x] add support for various audio bit depths (bits per sample). See [load - Torchaudio docs](https://pytorch.org/audio/stable/backend.html#id2)
+  - [x] add support for various sample rates. Please refer [load - Torchaudio docs](https://pytorch.org/audio/stable/backend.html#id2)
+  - [ ] test stereo audio (multi-channel) training
+- [x] filelists preprocessing
+  - [x] add filelists preprocessing for multi-speaker. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
+  - [x] code snippets for train test split. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
+  - [x] notebook to link filelists with actual wavs. Please refer [text_split.ipynb](preprocess/text_split.ipynb)
 - [ ] other
-
   - [x] rewrite code for python 3.11
-  - [x] replace Cython Monotonic Alignment Search with numba. Please refer [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
-  - [ ] replace numba Monotonic Alignment Search with torch.cuda.jit. Please refer [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
-  - [ ] updated inference to support batch processing
-
+  - [x] replace Cython Monotonic Alignment Search with numba.jit. See [vits-finetuning](https://github.com/SayaSS/vits-finetuning)
+  - [x] updated inference to support batch processing
 - [ ] pretrained models
-  - [ ] add pretrained models for Bengali language
-  - [ ] add pretrained models for multi-speaker
+  - [ ] training the model for Bengali language. (For now: 55_000 iterations, ~26 epochs)
+  - [ ] add pretrained models for multiple languages
 - [ ] future work
-  - [ ] pre-trained model for Bengali language
   - [ ] update model to naturalspeech. Please refer [naturalspeech](https://arxiv.org/abs/2205.04421)
-  - [ ] update naturalspeech to multi-speaker
   - [ ] add support for streaming. Please refer [vits_chinese](https://github.com/PlayVoice/vits_chinese/blob/master/text/symbols.py)
+  - [ ] update naturalspeech to multi-speaker
+  - [ ] replace speakers with multi-speaker embeddings
+  - [ ] replace speakers with multilingual training. Each speaker is a language with thhe same IPA symbols
+  - [ ] add support for in-context learning
 
 ## Acknowledgements
 
@@ -205,4 +198,4 @@ We also provide the [pretrained models](https://drive.google.com/drive/folders/1
 - [VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech](https://arxiv.org/abs/2106.06103)
 - [A TensorFlow implementation of Google's Tacotron speech synthesis with pre-trained model (unofficial)](https://github.com/keithito/tacotron)
 
-# vits-bengali
+# vits
